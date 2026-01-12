@@ -1,1 +1,1 @@
-odin run ./src -vet -strict-style -vet-tabs -disallow-do -warnings-as-errors -out:timber.exe
+odin run ./src -vet -strict-style -vet-tabs -disallow-do -warnings-as-errors -debug -out:timber.exe
