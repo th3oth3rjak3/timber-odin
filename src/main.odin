@@ -7,6 +7,9 @@ main :: proc() {
 	rl.InitWindow(1920, 1080, "Timber!!")
 	defer rl.CloseWindow()
 
+	rl.InitAudioDevice()
+	defer rl.CloseAudioDevice()
+
 	assets := load_assets()
 	defer unload_assets(&assets)
 	background := background_new(&assets.background)

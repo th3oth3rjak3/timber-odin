@@ -1,7 +1,6 @@
 package main
 
 import "core:fmt"
-import "core:os"
 import "core:os/os2"
 import "core:path/filepath"
 import "core:strings"
@@ -24,115 +23,91 @@ Game_Assets :: struct {
 	font:        rl.Font,
 }
 
-get_asset_path :: proc(relative_path: string) -> cstring {
-	exe_path, err := os2.get_executable_directory(context.allocator)
-	defer delete(exe_path)
-	if err != os2.General_Error.None {
-		fmt.eprintfln("Error getting exe directory: %v", err)
-		os.exit(-1)
+load_texture_from :: proc(base_path: string, filename: string) -> rl.Texture2D {
+	full_path, join_err := filepath.join([]string{base_path, filename})
+	if join_err != .None {
+		panic(fmt.tprintf("FATAL: Could not join path for %s: %v", filename, join_err))
 	}
-
-	os_path, allocated := filepath.from_slash(exe_path)
-	if allocated {
-		defer delete(os_path)
-	}
-
-	segments := [2]string{exe_path, relative_path}
-	full_path, join_err := filepath.join(segments[:])
 	defer delete(full_path)
 
-	if join_err != .None {
-		fmt.eprintfln("Error joining path segments: %v", err)
-		os.exit(-1)
-	}
-
-	c_path, clone_err := strings.clone_to_cstring(full_path)
+	path_cstring, clone_err := strings.clone_to_cstring(full_path)
 	if clone_err != .None {
-		fmt.eprintfln("Error cloning string to cstring: %v", clone_err)
-		os.exit(-1)
+		panic(fmt.tprintf("FATAL: Could not convert path to cstring: %s", full_path))
 	}
+	defer delete(path_cstring)
 
-	return c_path
+	texture := rl.LoadTexture(path_cstring)
+	return texture
+}
+
+load_sound_from :: proc(base_path: string, filename: string) -> rl.Sound {
+	full_path, join_err := filepath.join([]string{base_path, filename})
+	if join_err != .None {
+		panic(fmt.tprintf("FATAL: Could not join path for %s: %v", filename, join_err))
+	}
+	defer delete(full_path)
+
+	path_cstring, clone_err := strings.clone_to_cstring(full_path)
+	if clone_err != .None {
+		panic(fmt.tprintf("FATAL: Could not convert path to cstring: %s", full_path))
+	}
+	defer delete(path_cstring)
+
+	sound := rl.LoadSound(path_cstring)
+	return sound
+}
+
+load_font_from :: proc(base_path: string, filename: string) -> rl.Font {
+	full_path, join_err := filepath.join([]string{base_path, filename})
+	if join_err != .None {
+		panic(fmt.tprintf("FATAL: Could not join path for %s: %v", filename, join_err))
+	}
+	defer delete(full_path)
+
+	path_cstring, clone_err := strings.clone_to_cstring(full_path)
+	if clone_err != .None {
+		panic(fmt.tprintf("FATAL: Could not convert path to cstring: %s", full_path))
+	}
+	defer delete(path_cstring)
+
+	font := rl.LoadFont(path_cstring)
+	return font
 }
 
 load_assets :: proc() -> Game_Assets {
-	axe_path := get_asset_path("assets/graphics/axe.png")
-	defer delete(axe_path)
+	exe_path, err := os2.get_executable_directory(context.allocator)
+	if err != os2.General_Error.None {
+		panic(fmt.tprintfln("FATAL: Failed to get executable path"))
+	}
+	defer delete(exe_path)
 
-	background_path := get_asset_path("assets/graphics/background.png")
-	defer delete(background_path)
+	assets_dir, _ := filepath.join([]string{exe_path, "assets"})
+	defer delete(assets_dir)
 
-	bee_path := get_asset_path("assets/graphics/bee.png")
-	defer delete(bee_path)
+	sounds_dir, _ := filepath.join([]string{assets_dir, "sounds"})
+	defer delete(sounds_dir)
 
-	branch_path := get_asset_path("assets/graphics/branch.png")
-	defer delete(branch_path)
+	graphics_dir, _ := filepath.join([]string{assets_dir, "graphics"})
+	defer delete(graphics_dir)
 
-	cloud_path := get_asset_path("assets/graphics/cloud.png")
-	defer delete(cloud_path)
-
-	log_path := get_asset_path("assets/graphics/log.png")
-	defer delete(log_path)
-
-	player_path := get_asset_path("assets/graphics/player.png")
-	defer delete(player_path)
-
-	headstone_path := get_asset_path("assets/graphics/rip.png")
-	defer delete(headstone_path)
-
-	tree_path := get_asset_path("assets/graphics/tree.png")
-	defer delete(tree_path)
-
-	tree_alt_path := get_asset_path("assets/graphics/tree2.png")
-	defer delete(tree_alt_path)
-
-	death_path := get_asset_path("assets/sounds/chop.wav")
-	defer delete(death_path)
-
-	out_of_time_path := get_asset_path("assets/sounds/out_of_time.wav")
-	defer delete(out_of_time_path)
-
-	chop_path := get_asset_path("assets/sounds/chop.wav")
-	defer delete(chop_path)
-
-	font_path := get_asset_path("assets/fonts/KOMIKAP_.ttf")
-	defer delete(font_path)
-
-	// Textures
-	axe := rl.LoadTexture(axe_path)
-	background := rl.LoadTexture(background_path)
-	bee := rl.LoadTexture(bee_path)
-	branch := rl.LoadTexture(branch_path)
-	cloud := rl.LoadTexture(cloud_path)
-	log := rl.LoadTexture(log_path)
-	player := rl.LoadTexture(player_path)
-	headstone := rl.LoadTexture(headstone_path)
-	tree := rl.LoadTexture(tree_path)
-	tree_alt := rl.LoadTexture(tree_alt_path)
-
-	// Sounds
-	death := rl.LoadSound(death_path)
-	out_of_time := rl.LoadSound(out_of_time_path)
-	chop := rl.LoadSound(chop_path)
-
-	// Fonts
-	font := rl.LoadFont(font_path)
+	fonts_dir, _ := filepath.join([]string{assets_dir, "fonts"})
+	defer delete(fonts_dir)
 
 	return Game_Assets {
-		axe,
-		background,
-		bee,
-		branch,
-		cloud,
-		log,
-		player,
-		headstone,
-		tree,
-		tree_alt,
-		death,
-		out_of_time,
-		chop,
-		font,
+		axe = load_texture_from(graphics_dir, "axe.png"),
+		background = load_texture_from(graphics_dir, "background.png"),
+		bee = load_texture_from(graphics_dir, "bee.png"),
+		branch = load_texture_from(graphics_dir, "branch.png"),
+		cloud = load_texture_from(graphics_dir, "cloud.png"),
+		log = load_texture_from(graphics_dir, "log.png"),
+		player = load_texture_from(graphics_dir, "player.png"),
+		headstone = load_texture_from(graphics_dir, "rip.png"),
+		tree = load_texture_from(graphics_dir, "tree.png"),
+		tree_alt = load_texture_from(graphics_dir, "tree2.png"),
+		death = load_sound_from(sounds_dir, "death.wav"),
+		out_of_time = load_sound_from(sounds_dir, "out_of_time.wav"),
+		chop = load_sound_from(sounds_dir, "chop.wav"),
+		font = load_font_from(fonts_dir, "KOMIKAP_.ttf"),
 	}
 }
 
