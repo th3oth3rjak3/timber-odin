@@ -6,6 +6,8 @@ import "core:path/filepath"
 import "core:strings"
 import rl "vendor:raylib"
 
+// Game_Assets contains all the textures, fonts, and sounds
+// required for the game.
 Game_Assets :: struct {
 	axe:         rl.Texture2D,
 	background:  rl.Texture2D,
@@ -23,6 +25,7 @@ Game_Assets :: struct {
 	font:        rl.Font,
 }
 
+// Load a texture by providing its bath path and its filename.
 load_texture_from :: proc(base_path: string, filename: string) -> rl.Texture2D {
 	full_path, join_err := filepath.join([]string{base_path, filename})
 	if join_err != .None {
@@ -40,6 +43,7 @@ load_texture_from :: proc(base_path: string, filename: string) -> rl.Texture2D {
 	return texture
 }
 
+// Load a font by providing its base path and its filename.
 load_sound_from :: proc(base_path: string, filename: string) -> rl.Sound {
 	full_path, join_err := filepath.join([]string{base_path, filename})
 	if join_err != .None {
@@ -57,6 +61,7 @@ load_sound_from :: proc(base_path: string, filename: string) -> rl.Sound {
 	return sound
 }
 
+// Load a font by providing its base path and its filename.
 load_font_from :: proc(base_path: string, filename: string) -> rl.Font {
 	full_path, join_err := filepath.join([]string{base_path, filename})
 	if join_err != .None {
@@ -74,6 +79,7 @@ load_font_from :: proc(base_path: string, filename: string) -> rl.Font {
 	return font
 }
 
+// Load all game related assets.
 load_assets :: proc() -> Game_Assets {
 	exe_path, err := os2.get_executable_directory(context.allocator)
 	if err != os2.General_Error.None {
@@ -111,6 +117,7 @@ load_assets :: proc() -> Game_Assets {
 	}
 }
 
+// Unload all loaded assets.
 unload_assets :: proc(assets: ^Game_Assets) {
 	rl.UnloadTexture(assets.axe)
 	rl.UnloadTexture(assets.background)
