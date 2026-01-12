@@ -1,1 +1,1 @@
-odin run ./src
+odin run ./src -vet -strict-style -vet-tabs -disallow-do -warnings-as-errors
