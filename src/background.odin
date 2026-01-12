@@ -6,7 +6,7 @@ Background :: struct {
 	texture: ^rl.Texture,
 }
 
-background_new :: proc(texture: ^rl.Texture) -> Background {
+background_init :: proc(texture: ^rl.Texture) -> Background {
 	return Background{texture}
 }
 

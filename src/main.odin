@@ -1,6 +1,6 @@
 package main
 
-import "core:mem"
+@(require) import mem "core:mem"
 import rl "vendor:raylib"
 
 raylib_init :: proc() {
@@ -29,18 +29,33 @@ main :: proc() {
 	raylib_init()
 	defer raylib_cleanup()
 
-	assets := load_assets()
-	defer unload_assets(&assets)
+	assets := assets_load()
+	defer assets_unload(&assets)
 
-	background := background_new(&assets.background)
+	background := background_init(&assets.background)
+	clouds: [3]Cloud
+	clouds_init(&assets.cloud, clouds[:])
 
 
 	for (!rl.WindowShouldClose()) {
+		dt := rl.GetFrameTime()
+
+		// Handle Input
+
+		// Handle Updates
+		for &cloud in clouds {
+			cloud_update(&cloud, dt)
+		}
+
+		// Handle Rendering
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.WHITE)
 
 		background_draw(&background)
+		for &cloud in clouds {
+			cloud_draw(&cloud)
+		}
 
 		rl.EndDrawing()
 	}

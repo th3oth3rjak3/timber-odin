@@ -26,6 +26,7 @@ Game_Assets :: struct {
 }
 
 // Load a texture by providing its bath path and its filename.
+@(private = "file")
 load_texture_from :: proc(base_path: string, filename: string) -> rl.Texture2D {
 	full_path, join_err := filepath.join([]string{base_path, filename})
 	if join_err != .None {
@@ -44,6 +45,7 @@ load_texture_from :: proc(base_path: string, filename: string) -> rl.Texture2D {
 }
 
 // Load a font by providing its base path and its filename.
+@(private = "file")
 load_sound_from :: proc(base_path: string, filename: string) -> rl.Sound {
 	full_path, join_err := filepath.join([]string{base_path, filename})
 	if join_err != .None {
@@ -62,6 +64,7 @@ load_sound_from :: proc(base_path: string, filename: string) -> rl.Sound {
 }
 
 // Load a font by providing its base path and its filename.
+@(private = "file")
 load_font_from :: proc(base_path: string, filename: string) -> rl.Font {
 	full_path, join_err := filepath.join([]string{base_path, filename})
 	if join_err != .None {
@@ -80,7 +83,7 @@ load_font_from :: proc(base_path: string, filename: string) -> rl.Font {
 }
 
 // Load all game related assets.
-load_assets :: proc() -> Game_Assets {
+assets_load :: proc() -> Game_Assets {
 	exe_path, err := os2.get_executable_directory(context.allocator)
 	if err != os2.General_Error.None {
 		panic(fmt.tprintfln("FATAL: Failed to get executable path"))
@@ -118,7 +121,7 @@ load_assets :: proc() -> Game_Assets {
 }
 
 // Unload all loaded assets.
-unload_assets :: proc(assets: ^Game_Assets) {
+assets_unload :: proc(assets: ^Game_Assets) {
 	rl.UnloadTexture(assets.axe)
 	rl.UnloadTexture(assets.background)
 	rl.UnloadTexture(assets.bee)
